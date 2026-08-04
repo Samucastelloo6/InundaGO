@@ -1,11 +1,16 @@
-
 # InundaGO
 
-InundaGO es una aplicación web multiplataforma para el cálculo de rutas inteligentes teniendo en cuenta zonas inundables y nivel de riesgo asociado.
+Proyecto académico desarrollado en colaboración con Jessica Garrido durante el CFGS de Desarrollo de Aplicaciones Multiplataforma (DAM).
 
-La aplicación puede ejecutarse en cualquier dispositivo con navegador web moderno (Windows, macOS, Linux, Android o iOS), ofreciendo una interfaz responsive y dinámica.
+Este repositorio se mantiene como una copia del proyecto original con el objetivo de mostrar mi trabajo dentro de mi portfolio profesional.
 
-El sistema integra frontend, backend y base de datos geoespacial, permitiendo generar rutas principales y alternativas, visualizar zonas de riesgo, almacenar historial de consultas y gestionar usuarios autenticados.
+## Descripción
+
+InundaGO es una aplicación web multiplataforma para el cálculo de rutas inteligentes teniendo en cuenta zonas inundables y el nivel de riesgo asociado.
+
+La aplicación puede ejecutarse en cualquier dispositivo con un navegador web moderno (Windows, macOS, Linux, Android e iOS), ofreciendo una experiencia responsive y adaptada a diferentes tamaños de pantalla.
+
+El sistema integra un frontend desarrollado en Angular, un backend con Spring Boot y una base de datos geoespacial PostgreSQL con PostGIS. Permite generar rutas principales y alternativas, visualizar zonas de riesgo, consultar información meteorológica, almacenar el historial de rutas y gestionar usuarios autenticados mediante JWT.
 
 ---
 
