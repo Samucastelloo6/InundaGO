@@ -1,0 +1,168 @@
+@startuml Entidades y DTO's
+'## Entidades
+class User {
+    -idUsuario : Long 
+    -nombre : String 
+    -apellidos : String 
+    -password : String 
+    -email : String 
+    -fechaLogin : LocalDate 
+    -rol : Role 
+}
+
+class Route {
+    -idRuta : Long 
+    -direccionOrigen : String 
+    -direccionDestino : String 
+    -puntoOrigen : Point 
+    -puntoDestino : Point 
+    -lineaRuta : LineString 
+    -distancia : Double 
+    -duracion : Integer 
+    -fechaBusqueda : LocalDateTime 
+    -riesgo : Boolean 
+    -usuario : User 
+}
+
+class Alert {
+    -idAlerta : Integer 
+    -nivel : String 
+    -color : String 
+    -mmLluviaMin : BigDecimal 
+    -mmLluviaMax : BigDecimal 
+    -descripcion : String 
+}
+
+class Role {
+    -idRol : Long 
+    -nombreRol : String 
+}
+
+
+'## Interfaces
+interface UserDetails
+
+'## DTO's
+class UserDTO {
+    -idUsuario : Long 
+	-nombre : String 
+	-apellidos : String 
+	-fechaLogin : LocalDate 
+	-email : String 
+
+    {static} +convertToDTO(user : User) : UserDTO
+    {static} +convertToEntity(userDTO : UserDTO) : User
+}
+
+class UserRequestDTO {
+    -idUsuario : Long 
+	-nombre : String 
+	-apellidos : String 
+	-email : String 
+
+    {static} +convertToEntity(userRequestDTO : UserRequestDTO) : User
+}
+
+class UserResponseDTO {
+    -idUsuario : Long 
+    -nombre : String
+    -apellidos : String
+    -email : String 
+    -rolNombre : String
+
+    {static} +convertToDTO(user : User) : UserResponseDTO
+}
+
+class RouteDTO {
+    -idRuta : Long 
+	-direccionOrigen : String 
+	-direccionDestino : String 
+	-distancia : Double 
+	-duracion : Integer 
+	-fechaBusqueda : LocalDateTime 
+	-riesgo : Boolean 
+	-idUsuario : Long 
+	-coordenadasRuta : List<CoordinateDTO> 
+
+    {static} +convertToDTO(ruta : Route) : RouteDTO
+}
+
+class RouteRequestDTO {
+    -direccionOrigen : String 
+    -direccionDestino : String 
+    -latOrigen : Double 
+    -lngOrigen : Double 
+    -latDestino : Double 
+    -lngDestino : Double 
+}
+
+class RouteResponseDTO {
+    -idRuta : Long 
+    -distancia : Double 
+    -duracion : Integer 
+    -riesgo : Boolean 
+    -mensaje : String 
+    -coordenadasRuta : List<CoordinateDTO> 
+    -alertaClima : AlertDTO 
+    -rutaAlternativa : RouteDTO 
+
+    {static} +convertToDTO(ruta : Route, mensaje : String, alertaClima : AlertDTO) : RouteResponseDTO
+    {static} +convertToDTO(ruta : Route, mensaje : String, alertaClima : AlertDTO, rutaAlternativa : RouteDTO) : RouteResponseDTO
+}
+
+class AlertDTO {
+    -nivel : String 
+    -color : String 
+    -mmLluvia : BigDecimal 
+    -descripcion : String 
+
+    {static} +convertToDTO(alerta : Alert, mmLluviaActual : BigDecimal) : AlertDTO
+}
+
+class RolDTO {
+    -idRol : Long
+    -nombre : String
+
+    {static} +convertToDTO(rol : Role) : RolDTO
+    {static} +convertToEntity(rolDTO : RolDTO) : Role
+}
+
+class LoginRequestDTO {
+    -email : String 
+    -password : String 
+}
+
+class AuthResponseDTO {
+    -accesoToken : String 
+}
+
+class FloodZoneDTO {
+    -lat : Double 
+    -lng : Double 
+}
+
+class CoordinateDTO {
+    -lat : Double 
+    -lng : Double
+}
+
+'## Relaciones
+User "N" --> "1" Role 
+Route "N" --> "1" User 
+User ..|> UserDetails 
+
+User ..> UserDTO 
+User ..> UserRequestDTO 
+User ..> UserResponseDTO 
+Role ..> RolDTO 
+Route ..> RouteDTO 
+Route ..> RouteResponseDTO 
+Alert ..> AlertDTO 
+
+UserDTO --> RolDTO 
+RouteResponseDTO --> AlertDTO 
+RouteResponseDTO --> RouteDTO 
+RouteResponseDTO --> CoordinateDTO 
+RouteDTO --> CoordinateDTO
+
+@enduml

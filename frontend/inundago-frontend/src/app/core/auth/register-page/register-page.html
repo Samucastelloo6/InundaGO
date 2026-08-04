@@ -1,0 +1,111 @@
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600;700&display=swap"
+  rel="stylesheet">
+
+<div style="font-family: 'Noto Sans Arabic', sans-serif;">
+  <div class="relative min-h-screen flex flex-col sm:justify-center items-center bg-cover bg-center"
+    style="background-image: url('https://images.unsplash.com/photo-1493238792000-8113da705763?q=80&w=1920');">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+    <!-- Alert error (antes alert alert-error) -->
+    <div *ngIf="errorMessage"
+      class="relative z-10 mt-6 w-[min(420px,92vw)] rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800 text-sm shadow-sm">
+      {{ errorMessage }}
+    </div>
+
+    <div class="relative sm:max-w-sm w-full z-10">
+      <div
+        class="relative sm:max-w-sm w-full rounded-3xl px-6 py-6 bg-white/80 shadow-xl backdrop-blur-md mx-auto mt-10">
+
+        <div class="relative mt-3 h-14 flex items-center justify-center">
+          <div class="absolute left-0">
+            <img src="/logo_inunda_go.png" class="w-16 h-16" alt="logo" />
+          </div>
+
+          <label class="block text-lg text-gray-700 font-semibold text-center">
+            Regístrate
+          </label>
+        </div>
+
+        <form (ngSubmit)="onRegister()" class="mt-10">
+
+          <div>
+            <input type="text" placeholder=" Nombre" class="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg
+                     hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-black/10 outline-none transition"
+              name="nombre" [(ngModel)]="nombre" (input)="clearError()" required />
+          </div>
+
+          <div class="mt-7">
+            <input type="text" placeholder=" Apellidos" class="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg
+                     hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-black/10 outline-none transition"
+              name="apellidos" [(ngModel)]="apellidos" (input)="clearError()" required />
+          </div>
+
+          <div class="mt-7">
+            <input type="email" placeholder=" Correo electrónico" class="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg
+                     hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-black/10 outline-none transition"
+              name="email" [(ngModel)]="email" (input)="clearError()" required />
+          </div>
+
+          <div class="mt-7">
+            <input type="password" placeholder=" Contraseña" class="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg
+                     hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-black/10 outline-none transition"
+              name="password" [(ngModel)]="password" (input)="clearError()" required />
+          </div>
+
+          <div class="mt-7">
+            <input type="password" placeholder=" Confirmar contraseña" class="mt-1 block w-full border-none bg-gray-100 h-11 rounded-xl shadow-lg
+                     hover:bg-gray-200 focus:bg-gray-200 focus:ring-2 focus:ring-black/10 outline-none transition" />
+          </div>
+
+          <div class="mt-7">
+            <button class="bg-gray-600 w-full py-3 rounded-xl text-white shadow-xl
+                     hover:shadow-inner focus:outline-none transition duration-500
+                     ease-in-out transform hover:scale-105 active:scale-[0.99]
+                     disabled:opacity-60 disabled:cursor-not-allowed" type="submit" [disabled]="!isFormValid()">
+              Crear cuenta
+            </button>
+          </div>
+
+          <div class="flex mt-7 items-center text-center">
+            <hr class="border-gray-300 border-1 w-full rounded-md" />
+            <label class="block font-medium text-sm text-gray-600 w-full">
+              Regístrate con
+            </label>
+            <hr class="border-gray-300 border-1 w-full rounded-md" />
+          </div>
+
+          <div class="flex mt-7 justify-center gap-4">
+            <button type="button" class="bg-white border border-gray-200 px-6 py-2
+              rounded-xl shadow-md
+             hover:bg-gray-50 transition duration-500 ease-in-out
+             transform hover:scale-105 active:scale-[0.99]">
+              <iconify-icon icon="flat-color-icons:google" width="24" height="24"></iconify-icon>
+            </button>
+
+            <button type="button" class="bg-black px-6 py-2 rounded-xl text-white
+              shadow-md
+             hover:bg-gray-900 transition duration-500 ease-in-out
+             transform hover:scale-105 active:scale-[0.99]">
+              <iconify-icon icon="ic:baseline-apple" width="24" height="24" class="text-white"></iconify-icon>
+            </button>
+          </div>
+
+          <div class="mt-7">
+            <div class="flex justify-center items-center">
+              <label class="mr-2">¿Ya tienes una cuenta?</label>
+              <a routerLink="/" class="inline-flex items-center justify-center px-4 py-2 rounded-xl
+               border border-blue-200 text-blue-600 font-semibold
+               hover:bg-blue-50 transition duration-500 ease-in-out
+               transform hover:scale-105 active:scale-[0.99]">
+                Iniciar sesión
+              </a>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

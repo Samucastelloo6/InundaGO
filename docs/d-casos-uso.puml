@@ -1,0 +1,82 @@
+@startuml Casos de uso
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle stickman
+
+'## Actores principales
+actor "Usuario" as User
+actor "Admin" as Admin
+Admin --|> User
+
+'## Sistema
+rectangle "InundaGO" {
+
+  usecase "Registrarse" as Register
+  usecase "Iniciar sesión" as Login
+  usecase "Autenticar usuario\n(JWT)" as Auth
+
+  usecase "Ver perfil" as Profile
+  usecase "Modificar perfil" as EditProfile
+
+  usecase "Planificar ruta" as Route
+  usecase "Obtener ruta desde Mapbox" as MapboxRoute
+  usecase "Consultar BBDD zonas inundables" as FloodZones
+  usecase "Consultar alerta meteorológica" as Weather
+  usecase "Mostrar detalle de ruta" as RouteDetails
+
+  usecase "Ver historial de rutas" as History
+
+  usecase "Listar usuarios" as ListUsers
+  usecase "Crear usuario admin" as CreateAdmin
+  usecase "Eliminar usuario admin" as DeleteAdmin
+}
+
+'## Actores secundarios
+actor "API Mapbox" as Mapbox
+actor "API OpenWeather" as OpenWeather
+actor "BBDD Zonas inundables" as FloodDB
+
+'## Relaciones
+User --> Register
+User --> Login
+
+User --> Profile
+User --> EditProfile
+User --> Route
+User --> History
+
+Admin --> ListUsers
+Admin --> CreateAdmin
+Admin --> DeleteAdmin
+
+Register ..> Login : <<include>>
+
+Login ..> Auth : <<include>>
+
+Profile ..> Auth : <<include>>
+EditProfile ..> Auth : <<include>>
+Route ..> Auth : <<include>>
+History ..> Auth : <<include>>
+
+ListUsers ..> Auth : <<include>>
+CreateAdmin ..> Auth : <<include>>
+DeleteAdmin ..> Auth : <<include>>
+
+Route ..> MapboxRoute : <<include>>
+Route ..> FloodZones  : <<include>>
+Route ..> Weather     : <<include>>
+Route ..> RouteDetails: <<include>>
+
+
+' ## Sistemas externos
+
+Mapbox --> MapboxRoute
+OpenWeather --> Weather
+FloodDB --> FloodZones
+
+
+RouteDetails -[hidden]-> Mapbox
+RouteDetails -[hidden]-> OpenWeather
+RouteDetails -[hidden]-> FloodDB
+
+@enduml

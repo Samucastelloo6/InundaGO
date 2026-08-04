@@ -1,0 +1,224 @@
+@startuml Backend Spring Boot (Servicios, repositorios, controladores)
+
+
+'## Interfaces
+interface AuthService {
+    +login(request : LoginRequestDTO) : AuthResponseDTO
+    +register(request : RegisterRequestDTO) : AuthResponseDTO
+}
+
+interface UserService {
+    +updateUser(userRequestDTO : UserRequestDTO ) : UserResponseDTO
+	+getUser(id : Long) : UserDTO 
+	+getUserByEmail(email : String) : UserDTO
+}
+
+interface RouteService {
+    +calculateRoute(request : RouteRequestDTO, idUsuario : Long ) : RouteResponseDTO
+    +getRutasByUsuario(idUsuario : Long) : List<RouteDTO> 
+    +deleteRutasByUsuario(idUsuario : Long) : void
+    +getRutaById(idRuta : Long) : RouteDTO
+    +getFloodZonesInRoute(ruta : LineString) : List<FloodZoneDTO>
+}
+
+interface MapboxService {
+    +geocodificar(direccion : String) : CoordinateDTO
+    +calcularRuta(origen : CoordinateDTO, destino : CoordinateDTO) : RouteMapboxDTO 
+    +calcularRutasAlternativas(origen : CoordinateDTO, destino : CoordinateDTO) : List<RouteMapboxDTO>     
+}
+
+interface AlertService {
+    +obtenerAlertaMeteo(lat : Double, lng : Double) : AlertDTO 
+}
+
+interface FloodZoneService {
+    +getAllFloodZonesGeoJson() : String 
+}
+
+interface JwtService {
+    +getToken(user : UserDetails) : String
+    +getUsernameFromToken(token : String) : String
+    +isTokenValid(token : String, userDetails : UserDetails) : boolean
+    +<T> getClaim(token : String, claimsResolver : Function<Claims, T>) : T
+}
+
+
+'## Servicios
+class AuthServiceImpl {
+    -userRepository : UserRepository 
+    -roleRepository : RoleRepository 
+    -jwtService : JwtService 
+    -passwordEncoder : PasswordEncoder 
+    -authenticationManager : AuthenticationManager 
+    -registerValidator : RegisterRequestValidator 
+}
+
+class UserServiceImpl {
+    -userRepository : UserRepository 
+}
+
+class RouteServiceImpl {
+    -routeRepository : RouteRepository
+	-userRepository : UserRepository
+	-mapboxService : MapboxService
+	-alertService : AlertService
+    -entityManager : EntityManager
+    -geometryFactory : GeometryFactory
+}
+
+class RiskResult {
+
+}
+
+class GeocodedAddresses {
+
+}
+
+class MapboxServiceImpl {
+    -mapboxApiKey : String
+    -restTemplate : RestTemplate
+    -objectMapper : ObjectMapper
+}
+
+class AlertServiceImpl {
+    -apiKey : String 
+    -alertRepository : AlertRepository 
+    -restTemplate : RestTemplate
+    -objectMapper : ObjectMapper
+}
+
+class FloodZoneServiceImpl {
+    -entityManager : EntityManager
+}
+
+class JwtServiceImpl {
+    -SECRET_KEY : String
+
+    -getToken(extraClaims : Map<String,Object>, user : UserDetails) : String
+    -getKey() : Key
+    -getAllClaims(token : String) : Claims
+    -getExpiration(token : String) : Date
+    -isTokenExpired(token : String) : boolean
+}
+
+class JwtAuthFilter {
+    jwtService : JwtService
+    userDetailsService : UserDetailsService
+
+    #doFilterInternal(request : HttpServletRequest, response : HttpServletResponse, filterChain : FilterChain) : void
+    -getTokenFromRequest(request : HttpServletRequest) : String
+}
+
+'## Repositorios
+interface UserRepository {
+    +findByEmail(usernameEmail : String) : Optional<User>
+    +existsByEmail(email : String) : Boolean 
+}
+
+interface RouteRepository {
+    +findByUsuarioIdUsuarioOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +findByUsuarioIdUsuarioAndRiesgoTrueOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +findByUsuarioIdUsuarioAndRiesgoFalseOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +deleteByUsuarioIdUsuario(idUsuario : Long) : void
+}
+
+interface AlertRepository {
+    +findByMmLluvia(mmLluvia : BigDecimal) : Optional<Alert>
+}
+
+interface RoleRepository {
+    +findByNombreRol(nombreRol : String) : Optional<Role> 
+}
+
+interface JpaRepository<T, ID> {
+
+}
+
+'## RestControllers
+class AuthRestController {
+    -authService : AuthService
+
+    +login(request : LoginRequestDTO) : ResponseEntity<AuthResponseDTO>
+    +register(request : RegisterRequestDTO) : ResponseEntity<AuthResponseDTO>
+}
+
+class UserRestController {
+    -userService : UserService
+
+    +getUser(id : Long) : ResponseEntity<UserDTO>
+    +me(auth : Authentication) : ResponseEntity<UserDTO>
+    +updateUser(userRequestDTO : UserRequestDTO) : ResponseEntity<UserResponseDTO>
+}
+
+class RoutesRestController {
+    -routeService : RouteService
+    -userRepository : UserRepository
+
+    +calculateRoute(request : RouteRequestDTO, auth : Authentication) : ResponseEntity<RouteResponseDTO>
+    +getMisRutas(auth : Authentication) : ResponseEntity<List<RouteDTO>>
+    +getRutaById(id : Long, auth : Authentication) : ResponseEntity<RouteDTO>
+    +deleteMisRutas(auth : Authentication) : ResponseEntity<Void>
+}
+
+class FloodZonesRestController {
+    -floodZoneService : FloodZoneService
+
+    +FloodZonesRestController(floodZoneService : FloodZoneService)
+    +getFloodZones() : ResponseEntity<String>
+}
+
+'## Relaciones
+AuthServiceImpl ..|> AuthService
+UserServiceImpl ..|> UserService
+RouteServiceImpl ..|> RouteService
+MapboxServiceImpl ..|> MapboxService
+AlertServiceImpl ..|> AlertService
+FloodZoneServiceImpl ..|> FloodZoneService
+JwtServiceImpl ..|> JwtService
+
+JwtAuthFilter --|> OncePerRequestFilter
+RouteNotFoundException --|> RuntimeException
+UserRepository -|> JpaRepository
+RouteRepository -|> JpaRepository
+FloodZoneRepository -|> JpaRepository
+RoleRepository -|> JpaRepository
+
+AuthServiceImpl --> UserRepository
+AuthServiceImpl --> RoleRepository
+AuthServiceImpl --> JwtService
+AuthServiceImpl --> PasswordEncoder
+AuthServiceImpl --> AuthenticationManager
+AuthServiceImpl --> RegisterRequestValidator
+UserServiceImpl --> UserRepository
+RouteServiceImpl --> RouteRepository
+RouteServiceImpl --> UserRepository
+RouteServiceImpl --> MapboxService
+RouteServiceImpl --> AlertService
+RouteServiceImpl --> EntityManager
+RouteServiceImpl --> GeometryFactory
+MapboxServiceImpl --> RestTemplate
+MapboxServiceImpl --> ObjectMapper
+AlertServiceImpl --> AlertRepository
+AlertServiceImpl --> RestTemplate
+AlertServiceImpl --> ObjectMapper
+FloodZoneServiceImpl --> EntityManager
+
+JwtAuthFilter --> JwtService
+JwtAuthFilter --> UserDetailsService
+SecurityConfig --> JwtAuthFilter
+SecurityConfig --> AuthenticationProvider
+ApplicationConfig --> UserRepository
+
+AuthRestController --> AuthService
+UserRestController --> UserService
+RoutesRestController --> RouteService
+RoutesRestController --> UserRepository
+FloodZonesRestController --> FloodZoneService
+
+RegisterRequestValidator --> UserRepository
+GlobalExceptionHandler ..> ErrorResponse
+GlobalExceptionHandler ..> RouteNotFoundException
+RouteServiceImpl *-- RiskResult
+RouteServiceImpl *-- GeocodedAddresses
+
+@enduml

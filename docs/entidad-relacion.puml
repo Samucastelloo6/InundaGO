@@ -1,0 +1,50 @@
+@startuml Entidad-Relación
+left to right direction
+skinparam packageStyle rectangle
+
+entity "ROLE" as Role {
+  * id_rol <<PK>>
+  --
+  nombre_rol
+}
+
+entity "USUARIO" as Usuario {
+  * id_usuario <<PK>>
+  --
+  nombre
+  apellidos
+  email
+  password
+  fecha_login
+  id_rol <<FK>>
+}
+
+entity "RUTA" as Ruta {
+  * id_ruta <<PK>>
+  --
+  id_usuario <<FK>>
+  direccion_origen
+  direccion_destino
+  distancia
+  duracion
+  riesgo
+  fecha_busqueda
+  punto_origen
+  punto_destino
+  linea_ruta
+}
+
+entity "ALERTA" as Alerta {
+  * id_alerta <<PK>>
+  --
+  nivel
+  color
+  mm_lluvia_min
+  mm_lluvia_max
+  descripcion
+}
+
+Role ||--o{ Usuario : asigna
+Usuario ||--o{ Ruta : guarda
+
+@enduml

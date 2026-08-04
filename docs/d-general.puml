@@ -1,0 +1,35 @@
+@startuml Arquitectura General InundaGO
+skinparam dpi 150
+skinparam padding 5
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+package "Cliente" {
+    component [Angular SPA\n(PWA)] as Frontend
+}
+
+package "Servidor" {
+    component [Spring Boot\nAPI REST] as Backend
+}
+
+package "Base de datos\n(Supabase)" {
+    database [PostgreSQL + PostGIS\nDatos de la app] as AppDB
+    database [PostgreSQL + PostGIS\nZonas inundables] as FloodDB
+}
+
+package "Servicios externos" {
+    component [Mapbox API\nRutas + Geocodificación] as Mapbox
+    component [OpenWeather API\nMeteorología] as Weather
+}
+
+Frontend -right-> Backend : HTTPS / REST\n(JWT)
+Backend -right-> AppDB : JPA / Hibernate
+Backend -right-> FloodDB : SQL nativo\n(PostGIS)
+Backend -down-> Mapbox : HTTPS
+Backend -down-> Weather : HTTPS
+
+note bottom of Frontend : Desplegado en Netlify
+note bottom of Backend : Desplegado en Render
+note bottom of AppDB : Alojado en Supabase
+
+@enduml

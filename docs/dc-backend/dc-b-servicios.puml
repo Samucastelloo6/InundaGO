@@ -1,0 +1,131 @@
+@startuml Servicios Backend
+skinparam dpi 250
+skinparam padding 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+left to right direction
+
+
+'## Interfaces
+interface AuthService {
+    +login(request : LoginRequestDTO) : AuthResponseDTO
+    +register(request : RegisterRequestDTO) : AuthResponseDTO
+}
+
+interface UserService {
+    +updateUser(userRequestDTO : UserRequestDTO ) : UserResponseDTO
+	+getUser(id : Long) : UserDTO 
+	+getUserByEmail(email : String) : UserDTO
+}
+
+interface RouteService {
+    +calculateRoute(request : RouteRequestDTO, idUsuario : Long ) : RouteResponseDTO
+    +getRutasByUsuario(idUsuario : Long) : List<RouteDTO> 
+    +deleteRutasByUsuario(idUsuario : Long) : void
+    +getRutaById(idRuta : Long) : RouteDTO
+    +getFloodZonesInRoute(ruta : LineString) : List<FloodZoneDTO>
+}
+
+interface MapboxService {
+    +geocodificar(direccion : String) : CoordinateDTO
+    +calcularRuta(origen : CoordinateDTO, destino : CoordinateDTO) : RouteMapboxDTO 
+    +calcularRutasAlternativas(origen : CoordinateDTO, destino : CoordinateDTO) : List<RouteMapboxDTO>     
+}
+
+interface AlertService {
+    +obtenerAlertaMeteo(lat : Double, lng : Double) : AlertDTO 
+}
+
+interface FloodZoneService {
+    +getAllFloodZonesGeoJson() : String 
+}
+
+interface JwtService {
+    +getToken(user : UserDetails) : String
+    +getUsernameFromToken(token : String) : String
+    +isTokenValid(token : String, userDetails : UserDetails) : boolean
+    +<T> getClaim(token : String, claimsResolver : Function<Claims, T>) : T
+}
+
+
+'## Servicios
+class AuthServiceImpl {
+    -userRepository : UserRepository 
+    -roleRepository : RoleRepository 
+    -jwtService : JwtService 
+    -passwordEncoder : PasswordEncoder 
+    -authenticationManager : AuthenticationManager 
+    -registerValidator : RegisterRequestValidator 
+}
+
+class UserServiceImpl {
+    -userRepository : UserRepository 
+}
+
+class RouteServiceImpl {
+    -routeRepository : RouteRepository
+	-userRepository : UserRepository
+	-mapboxService : MapboxService
+	-alertService : AlertService
+    -entityManager : EntityManager
+    -geometryFactory : GeometryFactory
+}
+
+class MapboxServiceImpl {
+    -mapboxApiKey : String
+    -restTemplate : RestTemplate
+    -objectMapper : ObjectMapper
+}
+
+class AlertServiceImpl {
+    -apiKey : String 
+    -alertRepository : AlertRepository 
+    -restTemplate : RestTemplate
+    -objectMapper : ObjectMapper
+}
+
+class FloodZoneServiceImpl {
+    -entityManager : EntityManager
+}
+
+class JwtServiceImpl {
+    -SECRET_KEY : String
+
+    -getToken(extraClaims : Map<String,Object>, user : UserDetails) : String
+    -getKey() : Key
+    -getAllClaims(token : String) : Claims
+    -getExpiration(token : String) : Date
+    -isTokenExpired(token : String) : boolean
+}
+
+class JwtAuthFilter {
+    jwtService : JwtService
+    userDetailsService : UserDetailsService
+
+    #doFilterInternal(request : HttpServletRequest, response : HttpServletResponse, filterChain : FilterChain) : void
+    -getTokenFromRequest(request : HttpServletRequest) : String
+}
+
+
+'## Relaciones
+AuthServiceImpl ..|> AuthService
+UserServiceImpl ..|> UserService
+RouteServiceImpl ..|> RouteService
+MapboxServiceImpl ..|> MapboxService
+AlertServiceImpl ..|> AlertService
+FloodZoneServiceImpl ..|> FloodZoneService
+JwtServiceImpl ..|> JwtService
+
+
+AuthServiceImpl --> JwtService
+RouteServiceImpl --> MapboxService
+RouteServiceImpl --> AlertService
+
+
+JwtAuthFilter --> JwtService
+SecurityConfig --> JwtAuthFilter
+
+
+@enduml

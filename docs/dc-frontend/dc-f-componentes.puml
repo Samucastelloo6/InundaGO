@@ -1,0 +1,272 @@
+@startuml Componentes Frontend
+
+
+'## Interfaces
+interface AfterViewInit {
+    +ngAfterViewInit() : void
+}
+
+interface OnInit {
+    +ngOnInit() : void
+}
+
+'## Componentes
+'En la siguiente clase, se omiten los métodos de implementación por legibilidad
+class FullscreenMapPageComponent  {
+    +panelOpen : boolean
+    +historyOpen : boolean
+    +loadingRoute : boolean
+    +routeDurationMin : number
+    +routeDistanceKm : number
+    +routeMessage : String
+    +routeHasRisk : boolean
+    +rutaAlternativa : RouteDTO
+    +alertaClima : AlertDTO
+    -mapApi : MapApiService
+
+    +FullscreenMapPageComponent(mapApi : MapApiService)
+    +ngAfterViewInit() : void
+    +togglePanel() : void
+    +openPanel() : void
+    +openHistoryPanel() : void
+    +closeHistoryPanel() : void
+    +enablePickMode(target : String) : void
+    +disablePickMode() : void
+    +handleUseCurrentLocation() : void
+    +handleBuildRoute(ev : BuildRouteEvent) : Promise<void>
+    +clearMap() : void
+    +showAlternativeRoute() : void
+    +showMainRoute() : void
+    +viewSavedRoute(r : RouteDTO) : void
+    +dismissToast() : void
+    +alertTwClass() : String
+    +alertIcon() : String
+}
+
+class RoutePlannerComponent {
+    +routeDurationMin : number
+    +routeDistanceKm : number
+    +routeMessage : string
+    +routeHasRisk : boolean
+
+    +requestUseCurrentLocation : EventEmitter<void>
+    +startPickOnMap : EventEmitter<PickTarget>
+    +stopPickOnMap : EventEmitter<void>
+    +clear : EventEmitter<void>
+    +requestBuildRoute : EventEmitter<BuildRouteRequest>
+    +useCurrentLocation() : void
+    +togglePick(target : PickTarget) : void
+    +buildRoute() : void
+    +setOriginFromMap(coords : LatLng, label : string) : void
+    +setOriginFromCurrentLocation(coords : LatLng, label : string) : void
+    +setDestinationFromMap(coords : LatLng, label : string) : void
+    +reset() : void
+}
+
+class OriginComponent {
+    +pickingActive : boolean
+    -originText : Signal<string>
+    -originLabel : Signal<string>
+    -originCoords : Signal<LatLng?>
+    -originSuggestions : Signal<List<Suggestion>>
+
+    +requestUseCurrentLocation : EventEmitter<void>
+    +togglePick : EventEmitter<void>
+    +getOriginText() : string
+    +getOriginCoords() : LatLng
+    +setOriginFromMap(coords : LatLng, label : string) : void
+    +setOriginFromCurrentLocation(coords : LatLng, label : string) : void
+    +useCurrentLocation() : void
+    +reset() : void
+    +onOriginInput(value : string) : Promise<void>
+    +selectOriginSuggestion(s : Suggestion) : void
+    +onOriginFocus() : void
+    -forwardGeocode(query : string) : Promise<List<Suggestion>>
+}
+
+class DestinationComponent {
+    +pickingActive : boolean
+    -destinationText : Signal<string>
+    -destinationCoords : Signal<LatLng>
+    -destinationLabel : Signal<string>
+    -destinationSuggestions : Signal<List<Suggestion>>
+
+    +togglePick : EventEmitter<void>
+    +getDestinationText() : string
+    +getDestinationCoords() : LatLng
+    +setDestinationFromMap(coords : LatLng, label : string) : void
+    +reset() : void
+    +onDestinationInput(value : string) : Promise<void>
+    +selectDestinationSuggestion(s : Suggestion) : void
+    -forwardGeocode(query : string) : Promise<List<Suggestion>>
+}
+
+class FloodZonesToggleComponent {
+    +map : mapboxgl.Map
+    -floodSourceId : String
+    -floodFillLayerId : String
+    -floodLineLayerId : String
+    +showFloodZones : boolean
+    -floodLoaded : boolean
+    -mapApi : MapApiService
+
+    +change : EventEmitter<Event>
+    +FloodZonesToggleComponent(mapApi : MapApiService)
+    +ngOnInit() : void
+    +onChange(event : Event) : void
+    +toggleFloodZones(event : Event) : Promise<void>
+    -ensureFloodZonesLayerExists() : void
+    -loadFloodZonesFromBackend() : Promise<void>
+}
+
+class RouteAlertsComponent {
+    -alertaClima : Signal
+    -showingAlternative : Signal
+    -routeMessage : Signal
+    -routeHasRisk : Signal
+    -rutaAlternativa : Signal
+
+    +showAlternativeRoute : EventEmitter
+    +showMainRoute : EventEmitter
+    +setAlerts(alerta : AlertDTO) : void
+    +setShowingAlternative(value : boolean) : void
+    +setAlternativeRoute(route : RouteDTO) : void
+    +reset() : void
+    +alertTwClass() : string
+    +badgeTwClass() : string
+    +alertIcon() : string
+    +setRouteRisk(message : string, hasRisk : boolean) : void
+}
+
+class RouteHistoryPageComponent {
+    +routes : List<RouteDTO>
+    +loading : boolean
+    +error : string
+    -mapApi : MapApiService
+
+    +RouteHistoryPageComponent(mapApi : MapApiService)
+    +formatDuration(min : number) : string
+}
+
+class LoginPageComponent {
+    +form : FormGroup
+    +errorMessage : string
+    -fb : FormBuilder
+    -authService : AuthService
+    -userService : UserService
+    -router : Router
+
+    +LoginPageComponent(fb : FormBuilder, authService : AuthService, userService : UserService, router : Router)
+    +onSubmit() : void
+}
+
+class RegisterPageComponent {
+    +nombre : string
+    +apellidos : string
+    +email : string
+    +password : string
+    +errorMessage : string
+    -authService : AuthService
+    -router : Router
+
+    +RegisterPageComponent(authService : AuthService, router : Router)
+    +isFormValid() : boolean
+    +onRegister() : void
+    +clearError() : void
+}
+
+class ProfilePageComponent {
+    +user : UserDTO
+    +loading : boolean
+    +saving : boolean
+    +editMode : boolean
+    +error : string
+    +success : string
+    -fb : FormBuilder
+    +form : FormGroup
+    -userService : UserService
+    -router : Router
+
+    +ProfilePageComponent(userService : UserService, router : Router)
+    +ngOnInit() : void
+    +loadMe() : void
+    +startEdit() : void
+    +cancelEdit() : void
+    +roleLabel(role : string) : string
+    +save() : void
+    +logout() : void
+}
+
+class NavbarComponent {
+    -router : Router
+    -authService : AuthService
+    -userService : UserService
+    +menuOpen : boolean
+    +userName : string
+    +isDarkMode : boolean
+    +routes : List<MenuItem>
+    +pageTitle$ : Observable
+    +routeIcons : Map<string, string>
+
+    +ngOnInit() : void
+    +toggleTheme() : void
+    +logout() : void
+    -loadUser() : void
+    -loadTheme() : void
+    -applyTheme() : void
+}
+
+'## Relaciones
+AfterViewInit <|.. FullscreenMapPageComponent
+FullscreenMapPageComponent --> MapApiService
+FullscreenMapPageComponent ..> RouteDTO
+FullscreenMapPageComponent ..> AlertDTO
+FullscreenMapPageComponent ..> CoordinateDTO
+FullscreenMapPageComponent ..> BuildRouteEvent
+FullscreenMapPageComponent ..> RoutePlannerComponent
+FullscreenMapPageComponent ..> RouteAlertsComponent
+FullscreenMapPageComponent ..> RouteHistoryPanelComponent
+
+RoutePlannerComponent ..> OriginComponent
+RoutePlannerComponent ..> DestinationComponent
+RoutePlannerComponent ..> BuildRouteRequest
+
+OnInit <|.. FloodZonesToggleComponent
+FloodZonesToggleComponent --> MapApiService
+
+RouteAlertsComponent ..> AlertDTO
+RouteAlertsComponent ..> RouteDTO
+
+RouteHistoryPageComponent --> MapApiService
+RouteHistoryPageComponent ..> RouteDTO
+
+RouteHistoryPanelComponent --> MapApiService
+RouteHistoryPanelComponent ..> RouteDTO
+
+LoginPageComponent --> FormBuilder
+LoginPageComponent --> AuthService
+LoginPageComponent --> UserService
+LoginPageComponent --> Router
+LoginPageComponent ..> AuthResponseDTO
+LoginPageComponent ..> UserDTO
+LoginPageComponent ..> HttpErrorResponse
+
+RegisterPageComponent --> AuthService
+RegisterPageComponent --> Router
+RegisterPageComponent ..> RegisterRequestDTO
+
+OnInit <|.. ProfilePageComponent
+ProfilePageComponent --> UserService
+ProfilePageComponent --> Router
+ProfilePageComponent ..> UserDTO
+ProfilePageComponent ..> UserRequestDTO
+ProfilePageComponent --> FormBuilder
+
+OnInit <|.. NavbarComponent
+NavbarComponent --> Router
+NavbarComponent --> AuthService
+NavbarComponent --> UserService
+NavbarComponent ..> MenuItem
+NavbarComponent ..> UserDTO
+
+@enduml

@@ -1,0 +1,86 @@
+<div class="space-y-3 text-[13px] leading-snug">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+
+    <button
+    type="button"
+    class="text-gray-600 hover:text-red-600 transition p-1 ml-auto"
+    (click)="clear.emit()"
+  >
+    <iconify-icon icon="mynaui:trash" width="20" height="20"></iconify-icon>
+  </button>
+  </div>
+
+  <app-origin
+    [pickingActive]="picking()==='origin'"
+    (requestUseCurrentLocation)="useCurrentLocation()"
+    (togglePick)="togglePick('origin')">
+  </app-origin>
+
+  <div class="h-1"></div>
+
+  <app-destination
+    [pickingActive]="picking()==='destination'"
+    (togglePick)="togglePick('destination')">
+  </app-destination>
+
+  <!-- CTA (más bajito) -->
+  <button
+    type="button"
+    class="relative w-full h-10 rounded-xl bg-gray-900 px-4 text-sm font-medium text-white
+         shadow-md hover:bg-black hover:shadow-lg
+         active:scale-[0.99] transition flex items-center justify-center"
+    (click)="buildRoute()"
+  >
+    Trazar ruta
+    <iconify-icon icon="mynaui:navigation-one-solid" width="20" height="18" class="absolute right-4"></iconify-icon>
+  </button>
+
+  <!-- Resultado (compacto en 2 filas / 2 columnas) -->
+  @if (routeDistanceKm || routeDurationMin || routeMessage) {
+    <div class="pt-3 border-t border-black/10 space-y-2 text-[13px]">
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1">
+        @if (routeDistanceKm) {
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Distancia</span>
+            <span class="font-semibold text-gray-900">
+              {{ routeDistanceKm | number:'1.1-1' }} km
+            </span>
+          </div>
+        }
+
+        @if (routeDurationMin) {
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Duración</span>
+            <span class="font-semibold text-gray-900">
+              {{ routeDurationMin }} min
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- @if (routeMessage) {
+        <div
+          class="text-center font-semibold"
+          [class.text-red-600]="routeHasRisk"
+          [class.text-emerald-600]="!routeHasRisk"
+        >
+          {{ routeMessage }}
+        </div>
+      } -->
+    </div>
+  }
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

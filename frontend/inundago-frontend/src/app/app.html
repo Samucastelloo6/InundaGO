@@ -1,0 +1,8 @@
+@if (!isAuthRoute()) {
+  <app-navbar></app-navbar>
+}
+
+<div class="min-h-screen" [class.pt-16]="!isAuthRoute()">
+  <router-outlet></router-outlet>
+</div>
+

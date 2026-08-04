@@ -1,0 +1,53 @@
+@startuml Planificar ruta
+actor Usuario
+participant "RoutesRestController" as RoutesController
+participant "RouteService" as RouteService
+participant "MapboxService" as MapboxService
+participant "AlertService" as AlertService
+participant "RouteRepository" as RouteRepository
+participant "API Mapbox" as MapboxAPI
+participant "API OpenWeather" as OpenWeatherAPI
+database "BBDD Zonas Inundables" as FloodDB
+database "BBDD App" as AppDB
+
+== Planificar ruta ==
+Usuario -> RoutesController : POST /api/v1/routes/calculate (RouteRequestDTO, JWT)
+RoutesController -> RouteService : calculateRoute(request, idUsuario)
+
+'## Geocodificar direcciones
+RouteService -> MapboxService : geocodificar(direccion)
+MapboxService -> MapboxAPI : Request Geocoding API
+MapboxAPI --> MapboxService : CoordinateDTO (lat, lng)
+MapboxService --> RouteService : CoordinateDTO origen/destino
+
+'##  Obtener rutas desde Mapbox
+RouteService -> MapboxService : calcularRutasAlternativas(origen, destino)
+MapboxService -> MapboxAPI : Request Directions API
+MapboxAPI --> MapboxService : List<RouteMapboxDTO> (lineString, distancia, duración)
+MapboxService --> RouteService : List<RouteMapboxDTO>
+
+'## Verificar riesgo inundación + clima (checkFloodRiskWithWeather)
+RouteService -> FloodDB : Consulta espacial nativa (intersección lineString)
+FloodDB --> RouteService : Zonas inundables
+RouteService -> AlertService : obtenerAlertaMeteo(lat, lng)
+AlertService -> OpenWeatherAPI : Request Weather API
+OpenWeatherAPI --> AlertService : Datos meteorológicos
+AlertService --> RouteService : AlertDTO (riesgo por zona)
+
+'## Guardar ruta en historial (saveRoute)
+RouteService -> RouteRepository : save(route)
+RouteRepository -> AppDB : INSERT Route
+AppDB --> RouteRepository : OK
+RouteRepository --> RouteService : Route guardada
+
+'## Obtener alerta clima destino
+RouteService -> AlertService : obtenerAlertaMeteo(lat, lng)
+AlertService -> OpenWeatherAPI : Request Weather API
+OpenWeatherAPI --> AlertService : Datos meteorológicos
+AlertService --> RouteService : AlertDTO destino
+
+'## Respuesta
+RouteService --> RoutesController : RouteResponseDTO
+RoutesController --> Usuario : 200 OK (ruta, distancia, duración, alertas, rutaAlternativa)
+
+@enduml

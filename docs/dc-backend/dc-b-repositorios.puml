@@ -1,0 +1,50 @@
+@startuml Repositorios Backend
+'## Repositorios
+interface UserRepository {
+    +findByEmail(usernameEmail : String) : Optional<User>
+    +existsByEmail(email : String) : Boolean 
+}
+
+interface RouteRepository {
+    +findByUsuarioIdUsuarioOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +findByUsuarioIdUsuarioAndRiesgoTrueOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +findByUsuarioIdUsuarioAndRiesgoFalseOrderByFechaBusquedaDesc(idUsuario : Long) : List<Route> 
+    +deleteByUsuarioIdUsuario(idUsuario : Long) : void
+}
+
+interface AlertRepository {
+    +findByMmLluvia(mmLluvia : BigDecimal) : Optional<Alert>
+}
+
+interface RoleRepository {
+    +findByNombreRol(nombreRol : String) : Optional<Role> 
+}
+
+interface JpaRepository<T, ID> {
+
+}
+
+'## Relaciones
+UserRepository -|> JpaRepository
+RouteRepository -|> JpaRepository
+FloodZoneRepository -|> JpaRepository
+RoleRepository -|> JpaRepository
+
+AuthServiceImpl --> UserRepository
+AuthServiceImpl --> RoleRepository
+
+UserServiceImpl --> UserRepository
+RouteServiceImpl --> RouteRepository
+RouteServiceImpl --> UserRepository
+
+ApplicationConfig --> UserRepository
+
+RoutesRestController --> UserRepository
+
+RegisterRequestValidator --> UserRepository
+
+
+
+
+
+@enduml

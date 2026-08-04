@@ -1,0 +1,78 @@
+@startuml Servicios Frontend
+skinparam dpi 245
+skinparam padding 3
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+left to right direction
+
+'## Interfaces
+interface HttpInterceptor {
+    +intercept(req : HttpRequest<any>, next : HttpHandler) : Observable<HttpEvent<any>>
+}
+
+'## Servicios
+class AuthService {
+    {static}{readOnly} -TOKEN_KEY : String
+    -baseUrl : String
+    -http : HttpClient
+
+    +AuthService(http : HttpClient)
+
+    +login(payload : LoginRequestDTO) : Observable<AuthResponseDTO>
+    +register(payload : RegisterRequestDTO) : Observable<AuthResponseDTO>
+
+    +setToken(token : String) : void
+    +getToken() : String
+    +logout() : void
+}
+
+class UserService {
+    {static}{readOnly} -baseUrl : String
+    -http : HttpClient
+
+    +UserService(http : HttpClient)
+    +me() : Observable<UserDTO>
+    +updateUser(payload : UserRequestDTO) : Observable<UserResponseDTO>
+}
+
+class MapApiService {
+    -api : String
+    -http : HttpClient
+
+    +MapApiService(http : HttpClient)
+    +calculate(body : RouteRequestDTO) : Observable<RouteResponseDTO>
+    +getFloodZones() : Observable<any>
+    +getMyRoutes() : Observable<RouteDTO[]>
+}
+
+class JwtInterceptor {
+    -authService : AuthService
+
+    +JwtInterceptor(authService : AuthService)
+}
+
+'## Relaciones
+AuthService --> HttpClient
+AuthService ..> LoginRequestDTO
+AuthService ..> RegisterRequestDTO
+AuthService ..> Observable
+AuthService ..> AuthResponseDTO
+
+UserService --> HttpClient
+UserService ..> Observable
+UserService ..> UserDTO
+UserService ..> UserRequestDTO
+UserService ..> UserResponseDTO
+
+MapApiService --> HttpClient
+MapApiService ..> Observable
+MapApiService ..> RouteRequestDTO
+MapApiService ..> RouteResponseDTO
+MapApiService ..> RouteDTO
+
+JwtInterceptor -|> HttpInterceptor
+JwtInterceptor --> AuthService
+
+@enduml

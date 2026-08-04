@@ -1,0 +1,49 @@
+@startuml Entidades
+'## Entidades
+class User {
+    -idUsuario : Long 
+    -nombre : String 
+    -apellidos : String 
+    -password : String 
+    -email : String 
+    -fechaLogin : LocalDate 
+    -rol : Role 
+}
+
+class Route {
+    -idRuta : Long 
+    -direccionOrigen : String 
+    -direccionDestino : String 
+    -puntoOrigen : Point 
+    -puntoDestino : Point 
+    -lineaRuta : LineString 
+    -distancia : Double 
+    -duracion : Integer 
+    -fechaBusqueda : LocalDateTime 
+    -riesgo : Boolean 
+    -usuario : User 
+}
+
+class Alert {
+    -idAlerta : Integer 
+    -nivel : String 
+    -color : String 
+    -mmLluviaMin : BigDecimal 
+    -mmLluviaMax : BigDecimal 
+    -descripcion : String 
+}
+
+class Role {
+    -idRol : Long 
+    -nombreRol : String 
+}
+
+'## Interfaces
+interface UserDetails
+
+'## Relaciones
+User "N" --> "1" Role
+Route "N" --> "1" User
+User ..|> UserDetails
+
+@enduml

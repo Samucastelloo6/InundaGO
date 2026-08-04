@@ -1,0 +1,81 @@
+@startuml Modelo relacional
+left to right direction
+skinparam packageStyle rectangle
+
+entity "role" as role {
+  * id_rol : bigint <<PK>>
+  --
+  nombre_rol : varchar
+}
+
+entity "usuario" as usuario {
+  * id_usuario : bigint <<PK>>
+  --
+  id_rol : bigint <<FK>>
+  nombre : varchar
+  apellidos : varchar
+  password : varchar
+  email : varchar
+  fecha_login : date
+}
+
+entity "ruta" as ruta {
+  * id_ruta : bigint <<PK>>
+  --
+  id_usuario : bigint <<FK>>
+  direccion_origen : varchar
+  direccion_destino : varchar
+  punto_origen : geometry(Point)
+  punto_destino : geometry(Point)
+  linea_ruta : geometry(LineString)
+  distancia : double
+  duracion : int
+  riesgo : boolean
+  fecha_busqueda : timestamp
+}
+
+entity "alerta" as alerta {
+  * id_alerta : int <<PK>>
+  --
+  nivel : varchar
+  color : varchar
+  mm_lluvia_min : numeric
+  mm_lluvia_max : numeric
+  descripcion : varchar
+}
+
+entity "zonas_inundacion" as zonas_inundacion {
+  * id : bigint <<PK>>
+  --
+  id_zona
+  zona
+  tipo_zona
+  rio
+  long_km
+  hipotesis
+  hidrologia
+  precision
+  hidraul
+  estudio
+  tipo_est
+  documento
+  fecha_apro
+  fecha_geo
+  organismo
+  clave_expe
+  demarcacio
+  id_demar
+  q_m3_s
+  zi_directi
+  ciclo
+  shape_leng
+  fecha_lim
+  shape_le_1
+  shape_area
+  geom : geometry(MultiPolygon)
+}
+
+role ||--o{ usuario : FK id_rol
+usuario ||--o{ ruta : FK id_usuario
+
+@enduml

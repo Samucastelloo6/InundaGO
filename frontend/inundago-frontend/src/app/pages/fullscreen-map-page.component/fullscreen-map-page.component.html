@@ -1,0 +1,128 @@
+<div class="relative w-screen h-[calc(100vh-64px)]">
+
+  <!-- MAPA -->
+  <div #mapEl class="w-full h-full"></div>
+
+  <!-- ========================= -->
+  <!-- PANEL IZQUIERDO (PLANIFICADOR) -->
+  <!-- ========================= -->
+  <aside class="absolute top-4 left-4 z-10 w-[380px] max-w-[92vw]
+         transition-transform duration-300 ease-out" [class.-translate-x-[110%]]="!panelOpen">
+    <div class="mb-3 flex items-center gap-2">
+      <button type="button" class="inline-flex items-center justify-center rounded-xl border
+  border-white/60
+           bg-white/90 h-10 w-10 text-gray-900 shadow-md
+           ring-1 ring-black/5 hover:bg-white transition" (click)="togglePanel()">
+        <iconify-icon icon="mynaui:chevron-left" width="24" height="24"></iconify-icon>
+      </button>
+
+      <app-flood-zones-toggle [map]="map"></app-flood-zones-toggle>
+    </div>
+
+    <div class="overflow-hidden rounded-2xl border border-white/60
+              bg-gray-100/95 shadow-2xl ring-1 ring-black/5">
+
+      <!-- SIN SCROLL, pero con altura controlada -->
+      <div class="p-3 space-y-2">
+
+
+        <app-route-alerts (showAlternativeRoute)="showAlternativeRoute()" (showMainRoute)="showMainRoute()">
+        </app-route-alerts>
+
+        <!-- ROUTE PLANNER COMPACTO -->
+        <app-route-planner [routeDurationMin]="routeDurationMin" [routeDistanceKm]="routeDistanceKm"
+          [routeHasRisk]="routeHasRisk" (showAlternativeRoute)="showAlternativeRoute()"
+          (showMainRoute)="showMainRoute()" (requestUseCurrentLocation)="handleUseCurrentLocation()"
+          (startPickOnMap)="enablePickMode($event)" (stopPickOnMap)="disablePickMode()"
+          (requestBuildRoute)="handleBuildRoute($event)" (clear)="clearMap()"></app-route-planner>
+
+
+      </div>
+    </div>
+  </aside>
+
+  <button *ngIf="!panelOpen" type="button" class="absolute top-6 left-4 z-10 h-10 w-10 rounded-xl border
+  border-white/60
+           bg-white/90 shadow-md ring-1 ring-black/5 hover:bg-white
+  transition
+           inline-flex items-center justify-center" (click)="openPanel()">
+    <iconify-icon icon="mynaui:chevron-right" width="24" height="24"></iconify-icon>
+  </button>
+
+
+  <!-- ========================= -->
+  <!-- PANEL DERECHO (HISTORIAL) -->
+  <!-- ========================= -->
+  <aside class="absolute top-4 right-4 z-10 w-[380px] max-w-[92vw]updateRoute
+           transition-transform duration-300 ease-out" [class.translate-x-[110%]]="!historyOpen">
+    <!-- Botón ocultar -->
+    <div class="mb-3 flex justify-end">
+      <button type="button" class="rounded-xl border border-white/60 bg-white/90 px-3 py-2 text-sm font-medium
+               text-gray-900 shadow-md ring-1 ring-black/5 hover:bg-white transition" (click)="closeHistoryPanel()">
+        Ocultar →
+      </button>
+    </div>
+
+    <!-- Caja panel -->
+    <div class="overflow-hidden rounded-2xl border border-white/60
+                bg-gradient-to-b from-white/95 to-white/85
+                shadow-2xl ring-1 ring-black/5">
+
+      <div class="max-h-[calc(100vh-120px)] overflow-y-auto p-4">
+
+        <!-- Aquí está tu componente -->
+        <app-history-panel (selectRoute)="viewSavedRoute($event)"></app-history-panel>
+
+      </div>
+    </div>
+  </aside>
+
+  <!-- Botón flotante derecho -->
+  <button *ngIf="!historyOpen" type="button" class="absolute top-6 right-4 z-10 h-10 w-10 rounded-xl border border-white/60
+           bg-white/90 shadow-md ring-1 ring-black/5 hover:bg-white transition" (click)="openHistoryPanel()">
+    <iconify-icon icon="mynaui:map" width="24" height="24"></iconify-icon>
+  </button>
+
+
+    @if (loadingRoute) {
+      <app-loading message="Calculando ruta..." [darkBackground] = "true"/>
+    }
+
+  @if (alertaClima) {
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[420px]
+ max-w-[92vw]
+               rounded-2xl border p-4 shadow-2xl backdrop-blur-md
+               transition-all duration-300 animate-slide-up" [ngClass]="alertTwClass()">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <div class="text-sm font-semibold">Alerta meteo en destino</div>
+        <div class="mt-1 text-sm">Lluvia: <span class="font-semibold">{{
+            alertaClima.mmLluvia }}</span> mm</div>
+        <div class="mt-1 text-sm">{{ alertaClima.descripcion }}</div>
+      </div>
+      <iconify-icon [icon]="alertIcon()" width="40" height="40"></iconify-icon>
+    </div>
+
+
+    <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-900
+  transition" (click)="dismissToast()">✕</button>
+  </div>
+
+  @if (sinAlternativaSegura) {
+  <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[420px] max-w-[92vw]
+              rounded-2xl border border-orange-200 bg-orange-50 p-4 shadow-2xl
+              backdrop-blur-md">
+    <div class="flex items-center justify-between gap-3">
+      <div class="text-sm font-semibold text-orange-900">
+        No existen rutas alternativas seguras para este trayecto
+      </div>
+      <iconify-icon icon="mynaui:warning" width="28" height="28" class="text-orange-500 shrink-0"></iconify-icon>
+    </div>
+    <button class="absolute top-2 right-2 text-orange-400 hover:text-orange-700 transition"
+            (click)="sinAlternativaSegura = false">✕</button>
+  </div>
+}
+
+  }
+
+</div>

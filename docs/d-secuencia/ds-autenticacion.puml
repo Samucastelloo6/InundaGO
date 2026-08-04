@@ -1,0 +1,37 @@
+@startuml Registro y autenticación
+actor Usuario
+
+participant "AuthRestController" as AuthController
+participant "AuthService" as AuthService
+participant "UserRepository" as UserRepository
+database "BBDD" as DB
+
+== Registro ==
+
+Usuario -> AuthController : POST /auth/register (datos registro)
+AuthController -> AuthService : register(datos)
+AuthService -> UserRepository : save(usuario rol USER)
+UserRepository -> DB : INSERT Usuario
+DB --> UserRepository : OK
+UserRepository --> AuthService : Usuario guardado
+AuthService --> AuthController : Respuesta registro OK
+AuthController --> Usuario : Usuario registrado (201 Created)
+
+== Inicio de sesión ==
+
+Usuario -> AuthController : POST /auth/login (email, password)
+AuthController -> AuthService : login(credenciales)
+AuthService -> UserRepository : findByEmail(email)
+UserRepository -> DB : SELECT Usuario
+DB --> UserRepository : Usuario
+UserRepository --> AuthService : Usuario
+
+alt Credenciales válidas
+  AuthService --> AuthController : JWT + datos básicos
+  AuthController --> Usuario : Acceso a la aplicación (200 OK con token JWT)
+else Credenciales inválidas
+  AuthService --> AuthController : Error autenticación (401 Unauthorized)
+  AuthController --> Usuario : Mostrar mensaje de error 
+end
+
+@enduml

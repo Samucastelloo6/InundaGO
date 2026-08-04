@@ -1,0 +1,66 @@
+@startuml RestControllers y Seguridad
+skinparam dpi 250
+skinparam padding 5
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+left to right direction
+
+'## RestControllers
+class AuthRestController {
+    -authService : AuthService
+
+    +login(request : LoginRequestDTO) : ResponseEntity<AuthResponseDTO>
+    +register(request : RegisterRequestDTO) : ResponseEntity<AuthResponseDTO>
+}
+
+class UserRestController {
+    -userService : UserService
+
+    +getUser(id : Long) : ResponseEntity<UserDTO>
+    +me(auth : Authentication) : ResponseEntity<UserDTO>
+    +updateUser(userRequestDTO : UserRequestDTO) : ResponseEntity<UserResponseDTO>
+}
+
+class RoutesRestController {
+    -routeService : RouteService
+    -userRepository : UserRepository
+
+    +calculateRoute(request : RouteRequestDTO, auth : Authentication) : ResponseEntity<RouteResponseDTO>
+    +getMisRutas(auth : Authentication) : ResponseEntity<List<RouteDTO>>
+    +getRutaById(id : Long, auth : Authentication) : ResponseEntity<RouteDTO>
+    +deleteMisRutas(auth : Authentication) : ResponseEntity<Void>
+}
+
+class FloodZonesRestController {
+    -floodZoneService : FloodZoneService
+
+    +FloodZonesRestController(floodZoneService : FloodZoneService)
+    +getFloodZones() : ResponseEntity<String>
+}
+
+'## Relaciones
+JwtServiceImpl ..|> JwtService
+
+JwtAuthFilter --|> OncePerRequestFilter
+RouteNotFoundException --|> RuntimeException
+
+JwtAuthFilter --> JwtService
+JwtAuthFilter --> UserDetailsService
+SecurityConfig --> JwtAuthFilter
+SecurityConfig --> AuthenticationProvider
+
+GlobalExceptionHandler ..> ErrorResponse
+GlobalExceptionHandler ..> RouteNotFoundException
+
+AuthRestController --> AuthService
+UserRestController --> UserService
+RoutesRestController --> RouteService
+RoutesRestController --> UserRepository
+FloodZonesRestController --> FloodZoneService
+
+ApplicationConfig --> UserRepository
+
+
+@enduml
